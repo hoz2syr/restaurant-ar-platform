@@ -58,3 +58,6 @@ prisma/migrations/
 
 # Docker
 docker-compose.override.yml
+
+# Reports
+VALIDATION_REPORT.md
