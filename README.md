@@ -59,22 +59,26 @@ A comprehensive restaurant management platform with AR-enhanced menu - Complete 
 ## 🛠️ Tech Stack | التقنيات المستخدمة
 
 ### Frontend
+
 - **Next.js 14** (App Router) - Web & Admin interfaces
 - **React 18** - UI library
 - **TypeScript** - Type safety
 
 ### Backend
+
 - **NestJS** - Node.js framework
 - **Prisma** - Database ORM
 - **PostgreSQL 16** - Primary database
 - **Redis 7** - Caching & sessions
 
 ### Monorepo Tools
+
 - **pnpm** - Package manager
 - **Turborepo** - Build system
 - **TypeScript** - Shared type definitions
 
 ### Infrastructure
+
 - **Docker** - Containerization
 - **Docker Compose** - Local development
 
@@ -149,6 +153,7 @@ pnpm docker:up
 ```
 
 This starts:
+
 - PostgreSQL on port 5432
 - Redis on port 6379
 
@@ -172,6 +177,7 @@ pnpm dev
 ```
 
 This starts:
+
 - **Web App**: http://localhost:3000
 - **API**: http://localhost:3001
 - **Admin Panel**: http://localhost:3002
@@ -249,6 +255,7 @@ The database includes 19 main models:
 ### Default Admin Credentials | بيانات المدير الافتراضية
 
 After seeding:
+
 - **Email**: admin@restaurant.com
 - **Password**: admin123
 
@@ -296,6 +303,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed rules.
 ## 🤝 Contributing | المساهمة
 
 Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for:
+
 - Development rules
 - Code standards
 - Commit conventions
@@ -312,6 +320,7 @@ This project is licensed under the MIT License.
 ## 📞 Support | الدعم
 
 For questions and support:
+
 - Open an issue on GitHub
 - Email: support@restaurant.com
 

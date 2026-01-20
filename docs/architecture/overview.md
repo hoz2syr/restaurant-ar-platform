@@ -149,6 +149,7 @@ CustomerAddress │         MenuItem (snapshot)
 ### Why Monorepo?
 
 ✅ **Advantages**:
+
 - Shared code between apps
 - Single dependency management
 - Atomic commits across apps
@@ -158,6 +159,7 @@ CustomerAddress │         MenuItem (snapshot)
 ### Why Next.js 14?
 
 ✅ **Advantages**:
+
 - App Router for better structure
 - Server components for performance
 - Built-in API routes
@@ -167,6 +169,7 @@ CustomerAddress │         MenuItem (snapshot)
 ### Why NestJS?
 
 ✅ **Advantages**:
+
 - Enterprise-ready framework
 - Excellent TypeScript support
 - Modular architecture
@@ -177,6 +180,7 @@ CustomerAddress │         MenuItem (snapshot)
 ### Why PostgreSQL?
 
 ✅ **Advantages**:
+
 - Robust relational database
 - ACID compliance
 - JSON support
@@ -186,6 +190,7 @@ CustomerAddress │         MenuItem (snapshot)
 ### Why Prisma?
 
 ✅ **Advantages**:
+
 - Type-safe database client
 - Excellent migrations
 - Auto-completion

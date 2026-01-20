@@ -8,33 +8,129 @@ async function main() {
 
   // Create Tags
   console.log('📋 Creating tags...');
-  
+
   // Allergen Tags
   const allergenTags = [
-    { name: 'gluten', nameAr: 'جلوتين', type: 'allergen', icon: '🌾', color: '#FFA726' },
-    { name: 'dairy', nameAr: 'منتجات الألبان', type: 'allergen', icon: '🥛', color: '#64B5F6' },
-    { name: 'nuts', nameAr: 'مكسرات', type: 'allergen', icon: '🥜', color: '#A1887F' },
-    { name: 'shellfish', nameAr: 'قشريات', type: 'allergen', icon: '🦐', color: '#EF5350' },
-    { name: 'eggs', nameAr: 'بيض', type: 'allergen', icon: '🥚', color: '#FFD54F' },
-    { name: 'soy', nameAr: 'صويا', type: 'allergen', icon: '🫘', color: '#81C784' },
+    {
+      name: 'gluten',
+      nameAr: 'جلوتين',
+      type: 'allergen',
+      icon: '🌾',
+      color: '#FFA726',
+    },
+    {
+      name: 'dairy',
+      nameAr: 'منتجات الألبان',
+      type: 'allergen',
+      icon: '🥛',
+      color: '#64B5F6',
+    },
+    {
+      name: 'nuts',
+      nameAr: 'مكسرات',
+      type: 'allergen',
+      icon: '🥜',
+      color: '#A1887F',
+    },
+    {
+      name: 'shellfish',
+      nameAr: 'قشريات',
+      type: 'allergen',
+      icon: '🦐',
+      color: '#EF5350',
+    },
+    {
+      name: 'eggs',
+      nameAr: 'بيض',
+      type: 'allergen',
+      icon: '🥚',
+      color: '#FFD54F',
+    },
+    {
+      name: 'soy',
+      nameAr: 'صويا',
+      type: 'allergen',
+      icon: '🫘',
+      color: '#81C784',
+    },
   ];
 
   // Dietary Tags
   const dietaryTags = [
-    { name: 'vegetarian', nameAr: 'نباتي', type: 'dietary', icon: '🥗', color: '#66BB6A' },
-    { name: 'vegan', nameAr: 'نباتي صرف', type: 'dietary', icon: '🌱', color: '#4CAF50' },
-    { name: 'halal', nameAr: 'حلال', type: 'dietary', icon: '☪️', color: '#26A69A' },
-    { name: 'keto', nameAr: 'كيتو', type: 'dietary', icon: '🥑', color: '#AB47BC' },
-    { name: 'low-carb', nameAr: 'قليل الكربوهيدرات', type: 'dietary', icon: '📉', color: '#7E57C2' },
+    {
+      name: 'vegetarian',
+      nameAr: 'نباتي',
+      type: 'dietary',
+      icon: '🥗',
+      color: '#66BB6A',
+    },
+    {
+      name: 'vegan',
+      nameAr: 'نباتي صرف',
+      type: 'dietary',
+      icon: '🌱',
+      color: '#4CAF50',
+    },
+    {
+      name: 'halal',
+      nameAr: 'حلال',
+      type: 'dietary',
+      icon: '☪️',
+      color: '#26A69A',
+    },
+    {
+      name: 'keto',
+      nameAr: 'كيتو',
+      type: 'dietary',
+      icon: '🥑',
+      color: '#AB47BC',
+    },
+    {
+      name: 'low-carb',
+      nameAr: 'قليل الكربوهيدرات',
+      type: 'dietary',
+      icon: '📉',
+      color: '#7E57C2',
+    },
   ];
 
   // Feature Tags
   const featureTags = [
-    { name: 'spicy', nameAr: 'حار', type: 'feature', icon: '🌶️', color: '#F44336' },
-    { name: 'popular', nameAr: 'شائع', type: 'feature', icon: '⭐', color: '#FFC107' },
-    { name: 'chef-special', nameAr: 'اختيار الشيف', type: 'feature', icon: '👨‍🍳', color: '#FF6F00' },
-    { name: 'new', nameAr: 'جديد', type: 'feature', icon: '✨', color: '#00BCD4' },
-    { name: 'seasonal', nameAr: 'موسمي', type: 'feature', icon: '🍂', color: '#FF9800' },
+    {
+      name: 'spicy',
+      nameAr: 'حار',
+      type: 'feature',
+      icon: '🌶️',
+      color: '#F44336',
+    },
+    {
+      name: 'popular',
+      nameAr: 'شائع',
+      type: 'feature',
+      icon: '⭐',
+      color: '#FFC107',
+    },
+    {
+      name: 'chef-special',
+      nameAr: 'اختيار الشيف',
+      type: 'feature',
+      icon: '👨‍🍳',
+      color: '#FF6F00',
+    },
+    {
+      name: 'new',
+      nameAr: 'جديد',
+      type: 'feature',
+      icon: '✨',
+      color: '#00BCD4',
+    },
+    {
+      name: 'seasonal',
+      nameAr: 'موسمي',
+      type: 'feature',
+      icon: '🍂',
+      color: '#FF9800',
+    },
   ];
 
   const allTags = [...allergenTags, ...dietaryTags, ...featureTags];
@@ -51,7 +147,7 @@ async function main() {
 
   // Create Main Branch
   console.log('🏢 Creating main branch...');
-  
+
   const mainBranch = await prisma.branch.upsert({
     where: { id: 'main-branch-001' },
     update: {},
@@ -84,7 +180,7 @@ async function main() {
 
   // Create Tables for Main Branch
   console.log('🪑 Creating tables...');
-  
+
   const tablesToCreate = [
     { number: '1', seats: 2, qrCode: 'QR-TABLE-001' },
     { number: '2', seats: 2, qrCode: 'QR-TABLE-002' },
@@ -111,7 +207,7 @@ async function main() {
 
   // Create Menu Categories
   console.log('📂 Creating menu categories...');
-  
+
   const categories = [
     {
       id: 'cat-appetizers',
@@ -159,9 +255,9 @@ async function main() {
 
   // Create Admin User
   console.log('👤 Creating admin user...');
-  
+
   const hashedPassword = await bcrypt.hash('admin123', 10);
-  
+
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@restaurant.com' },
     update: {},
@@ -176,18 +272,20 @@ async function main() {
     },
   });
 
-  console.log('✅ Created admin user (email: admin@restaurant.com, password: admin123)');
+  console.log(
+    '✅ Created admin user (email: admin@restaurant.com, password: admin123)'
+  );
 
   // Create Sample Menu Items
   console.log('🍽️ Creating sample menu items...');
-  
+
   const sampleMenuItems = [
     {
       name: 'Hummus Bowl',
       nameAr: 'طبق الحمص',
       description: 'Traditional chickpea dip with tahini and olive oil',
       descriptionAr: 'غموس الحمص التقليدي مع الطحينة وزيت الزيتون',
-      price: 25.00,
+      price: 25.0,
       preparationTime: 5,
       calories: 180,
       categoryId: 'cat-appetizers',
@@ -200,7 +298,7 @@ async function main() {
       nameAr: 'دجاج مشوي',
       description: 'Tender grilled chicken with herbs and spices',
       descriptionAr: 'دجاج مشوي طري مع الأعشاب والتوابل',
-      price: 65.00,
+      price: 65.0,
       preparationTime: 20,
       calories: 450,
       categoryId: 'cat-main-courses',
@@ -213,7 +311,7 @@ async function main() {
       nameAr: 'كنافة',
       description: 'Sweet cheese pastry soaked in syrup',
       descriptionAr: 'معجنات الجبن الحلوة المنقوعة في الشراب',
-      price: 30.00,
+      price: 30.0,
       preparationTime: 10,
       calories: 350,
       categoryId: 'cat-desserts',
@@ -225,7 +323,7 @@ async function main() {
       nameAr: 'عصير برتقال طازج',
       description: 'Freshly squeezed orange juice',
       descriptionAr: 'عصير برتقال طازج معصور',
-      price: 15.00,
+      price: 15.0,
       preparationTime: 3,
       calories: 120,
       categoryId: 'cat-beverages',

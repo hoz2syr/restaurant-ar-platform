@@ -38,7 +38,8 @@ These rules are **MANDATORY** and must be followed at all times:
 
 **القاعدة**: جميع عناصر الطلب يجب أن تُحفظ كـ snapshot كامل في وقت الطلب.
 
-**السبب**: 
+**السبب**:
+
 - أسعار المنتجات قد تتغير
 - العناصر قد تُحذف من القائمة
 - الطلبات القديمة يجب أن تعكس الحالة الدقيقة وقت الطلب
@@ -48,6 +49,7 @@ These rules are **MANDATORY** and must be followed at all times:
 **Rule**: All order items MUST be saved as a complete snapshot at order time.
 
 **Reason**:
+
 - Prices may change
 - Items may be deleted from menu
 - Historical orders must reflect exact state at order time
@@ -68,14 +70,14 @@ const orderItem = {
     image: item.image,
     arModelUrl: item.arModelUrl,
     // ... all relevant fields
-  }
-}
+  },
+};
 
 // ❌ WRONG - Only reference
 const orderItem = {
   menuItemId: item.id,
   quantity: 2,
-}
+};
 ```
 
 ---
@@ -87,6 +89,7 @@ const orderItem = {
 **القاعدة**: جميع حسابات الأعمال والتحقق يجب أن تتم في Backend API، وليس في Frontend.
 
 **السبب**:
+
 - الأمان: Frontend يمكن التلاعب به
 - الاتساق: منطق واحد لجميع العملاء
 - الصيانة: تغيير القواعد في مكان واحد
@@ -96,6 +99,7 @@ const orderItem = {
 **Rule**: All business calculations and validation MUST happen in Backend API, not Frontend.
 
 **Reason**:
+
 - Security: Frontend can be manipulated
 - Consistency: Single logic for all clients
 - Maintenance: Change rules in one place
@@ -130,6 +134,7 @@ POST /api/orders
 ```
 
 **What MUST be done in Backend**:
+
 - Price calculations
 - Discount applications
 - Tax calculations
@@ -147,6 +152,7 @@ POST /api/orders
 **القاعدة**: Next.js API Routes يجب أن تكون thin proxies فقط - تُعيد توجيه الطلبات إلى NestJS API.
 
 **السبب**:
+
 - فصل المسؤوليات
 - إعادة استخدام الكود
 - Backend واحد لجميع العملاء
@@ -157,6 +163,7 @@ POST /api/orders
 **Rule**: Next.js API Routes MUST be thin proxies only - forward requests to NestJS API.
 
 **Reason**:
+
 - Separation of concerns
 - Code reusability
 - Single backend for all clients
@@ -178,26 +185,28 @@ export async function GET() {
   const prisma = new PrismaClient();
   const items = await prisma.menuItem.findMany({
     where: { isAvailable: true },
-    include: { category: true }
+    include: { category: true },
   });
-  
+
   // ❌ Business logic here!
-  const processedItems = items.map(item => ({
+  const processedItems = items.map((item) => ({
     ...item,
-    discountedPrice: item.price * 0.9
+    discountedPrice: item.price * 0.9,
   }));
-  
+
   return Response.json(processedItems);
 }
 ```
 
 **What Next.js API Routes CAN do**:
+
 - Forward requests to NestJS
 - Handle authentication cookies
 - Add request headers
 - Format responses for frontend
 
 **What Next.js API Routes CANNOT do**:
+
 - Database queries
 - Business calculations
 - Validation logic
@@ -212,6 +221,7 @@ export async function GET() {
 **القاعدة**: AR يجب أن تكون ميزة اختيارية، وليست متطلباً أساسياً.
 
 **السبب**:
+
 - ليست جميع الأجهزة تدعم AR
 - المستخدمون قد يفضلون عدم استخدام AR
 - النظام يجب أن يعمل بدون AR
@@ -221,6 +231,7 @@ export async function GET() {
 **Rule**: AR MUST be an optional feature, not a core requirement.
 
 **Reason**:
+
 - Not all devices support AR
 - Users may prefer not to use AR
 - System must work without AR
@@ -246,7 +257,7 @@ function MenuItemCard({ item }: Props) {
       <img src={item.image} alt={item.name} />
       <h3>{item.name}</h3>
       <p>{item.price} SAR</p>
-      
+
       {/* AR is optional enhancement */}
       {item.hasArModel && (
         <button>View in AR</button>
@@ -264,6 +275,7 @@ interface MenuItem {
 ```
 
 **Guidelines**:
+
 - Always provide fallback images
 - Make AR features discoverable but not intrusive
 - Track AR usage in analytics
@@ -514,6 +526,7 @@ throw new NotFoundException(ERROR_CODES.MENU_ITEM_NOT_FOUND);
 ## 🤝 Questions? | أسئلة؟
 
 If you have questions about these rules:
+
 1. Open an issue with the `question` label
 2. Ask in discussions
 3. Review existing PRs for examples
