@@ -1,0 +1,613 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// ENUMS
+// ============================================
+
+enum UserRole {
+  SUPER_ADMIN
+  BRANCH_ADMIN
+  MANAGER
+  STAFF
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  IN_DELIVERY
+  DELIVERED
+  CANCELLED
+}
+
+enum OrderType {
+  DINE_IN
+  TAKEAWAY
+  DELIVERY
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  ONLINE
+  WALLET
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  SEATED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum PromotionType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_ITEM
+  BUY_X_GET_Y
+}
+
+enum NotificationType {
+  ORDER_STATUS
+  RESERVATION
+  PROMOTION
+  SYSTEM
+}
+
+enum NotificationChannel {
+  PUSH
+  EMAIL
+  SMS
+  IN_APP
+}
+
+enum InventoryAction {
+  PURCHASE
+  SALE
+  WASTE
+  ADJUSTMENT
+}
+
+// ============================================
+// USER & AUTHENTICATION
+// ============================================
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  role      UserRole @default(STAFF)
+  isActive  Boolean  @default(true)
+  
+  branchId  String?
+  branch    Branch?  @relation(fields: [branchId], references: [id])
+  
+  activityLogs  ActivityLog[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([email])
+  @@index([branchId])
+  @@map("users")
+}
+
+// ============================================
+// BRANCH & TABLE MANAGEMENT
+// ============================================
+
+model Branch {
+  id          String   @id @default(cuid())
+  name        String
+  nameAr      String
+  address     String
+  addressAr   String
+  city        String
+  cityAr      String
+  phone       String
+  email       String?
+  isActive    Boolean  @default(true)
+  latitude    Float?
+  longitude   Float?
+  
+  // Operating hours (JSON format)
+  operatingHours Json?
+  
+  users        User[]
+  tables       Table[]
+  orders       Order[]
+  reservations Reservation[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([isActive])
+  @@map("branches")
+}
+
+model Table {
+  id            String  @id @default(cuid())
+  number        String
+  seats         Int
+  qrCode        String  @unique
+  isActive      Boolean @default(true)
+  
+  branchId      String
+  branch        Branch  @relation(fields: [branchId], references: [id], onDelete: Cascade)
+  
+  orders        Order[]
+  reservations  Reservation[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@unique([branchId, number])
+  @@index([branchId])
+  @@index([qrCode])
+  @@map("tables")
+}
+
+// ============================================
+// MENU MANAGEMENT
+// ============================================
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String
+  nameAr      String
+  description String?
+  descriptionAr String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  
+  menuItems   MenuItem[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([sortOrder])
+  @@map("categories")
+}
+
+model Tag {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  nameAr      String
+  type        String   // 'allergen', 'dietary', 'feature'
+  icon        String?
+  color       String?
+  
+  menuItems   MenuItemTag[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([type])
+  @@map("tags")
+}
+
+model MenuItem {
+  id              String   @id @default(cuid())
+  name            String
+  nameAr          String
+  description     String?
+  descriptionAr   String?
+  price           Float
+  preparationTime Int      // in minutes
+  calories        Int?
+  isAvailable     Boolean  @default(true)
+  isActive        Boolean  @default(true)
+  
+  // Images
+  image           String?
+  imageAr         String?
+  
+  // AR Support
+  hasArModel      Boolean  @default(false)
+  arModelUrl      String?
+  arModelUrlIos   String?  // USDZ for iOS
+  arModelUrlAndroid String? // GLB for Android
+  arThumbnail     String?
+  
+  categoryId      String
+  category        Category @relation(fields: [categoryId], references: [id])
+  
+  tags            MenuItemTag[]
+  orderItems      OrderItem[]
+  arAnalytics     ArAnalytics[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([categoryId])
+  @@index([isAvailable])
+  @@index([hasArModel])
+  @@map("menu_items")
+}
+
+model MenuItemTag {
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  
+  tagId      String
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  
+  assignedAt DateTime @default(now())
+  
+  @@id([menuItemId, tagId])
+  @@index([menuItemId])
+  @@index([tagId])
+  @@map("menu_item_tags")
+}
+
+// ============================================
+// CUSTOMER MANAGEMENT
+// ============================================
+
+model Customer {
+  id          String   @id @default(cuid())
+  email       String?  @unique
+  phone       String   @unique
+  name        String
+  dateOfBirth DateTime?
+  
+  // Preferences
+  preferredLanguage String @default("ar")
+  
+  addresses   CustomerAddress[]
+  orders      Order[]
+  reservations Reservation[]
+  notifications Notification[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([phone])
+  @@index([email])
+  @@map("customers")
+}
+
+model CustomerAddress {
+  id          String   @id @default(cuid())
+  label       String   // 'Home', 'Work', etc.
+  address     String
+  city        String
+  area        String?
+  building    String?
+  floor       String?
+  apartment   String?
+  latitude    Float?
+  longitude   Float?
+  isDefault   Boolean  @default(false)
+  
+  customerId  String
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  orders      Order[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([customerId])
+  @@map("customer_addresses")
+}
+
+// ============================================
+// PROMOTIONS
+// ============================================
+
+model Promotion {
+  id              String        @id @default(cuid())
+  code            String        @unique
+  name            String
+  nameAr          String
+  description     String?
+  descriptionAr   String?
+  type            PromotionType
+  discountValue   Float
+  minOrderAmount  Float?
+  maxDiscount     Float?
+  usageLimit      Int?
+  usageCount      Int           @default(0)
+  isActive        Boolean       @default(true)
+  
+  validFrom       DateTime
+  validUntil      DateTime
+  
+  orders          Order[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([code])
+  @@index([isActive])
+  @@index([validFrom, validUntil])
+  @@map("promotions")
+}
+
+// ============================================
+// ORDER MANAGEMENT
+// ============================================
+
+model Order {
+  id              String      @id @default(cuid())
+  orderNumber     String      @unique
+  type            OrderType
+  status          OrderStatus @default(PENDING)
+  
+  // Customer Info
+  customerId      String?
+  customer        Customer?   @relation(fields: [customerId], references: [id])
+  
+  customerName    String
+  customerPhone   String
+  customerEmail   String?
+  
+  // Branch & Table
+  branchId        String
+  branch          Branch      @relation(fields: [branchId], references: [id])
+  
+  tableId         String?
+  table           Table?      @relation(fields: [tableId], references: [id])
+  
+  // Delivery
+  deliveryAddressId String?
+  deliveryAddress CustomerAddress? @relation(fields: [deliveryAddressId], references: [id])
+  deliveryFee     Float?
+  deliveryNotes   String?
+  
+  // Pricing
+  subtotal        Float
+  tax             Float       @default(0)
+  discount        Float       @default(0)
+  total           Float
+  
+  // Promotion
+  promotionId     String?
+  promotion       Promotion?  @relation(fields: [promotionId], references: [id])
+  
+  // Special requests
+  notes           String?
+  
+  // Estimated times
+  estimatedPrepTime Int?     // in minutes
+  actualPrepTime    Int?     // in minutes
+  
+  items           OrderItem[]
+  payments        Payment[]
+  statusHistory   OrderStatusHistory[]
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([orderNumber])
+  @@index([customerId])
+  @@index([branchId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("orders")
+}
+
+model OrderItem {
+  id            String   @id @default(cuid())
+  quantity      Int
+  price         Float    // Price at time of order
+  subtotal      Float
+  notes         String?
+  
+  // Snapshot of item at order time (for history)
+  itemSnapshot  Json
+  
+  orderId       String
+  order         Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  menuItemId    String
+  menuItem      MenuItem @relation(fields: [menuItemId], references: [id])
+  
+  inventoryLogs InventoryLog[]
+  
+  createdAt DateTime @default(now())
+  
+  @@index([orderId])
+  @@index([menuItemId])
+  @@map("order_items")
+}
+
+// ============================================
+// PAYMENT
+// ============================================
+
+model Payment {
+  id              String        @id @default(cuid())
+  amount          Float
+  status          PaymentStatus @default(PENDING)
+  method          PaymentMethod
+  transactionId   String?       @unique
+  
+  // Payment details (JSON for flexibility)
+  paymentDetails  Json?
+  
+  orderId         String
+  order           Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([orderId])
+  @@index([status])
+  @@index([transactionId])
+  @@map("payments")
+}
+
+// ============================================
+// RESERVATION
+// ============================================
+
+model Reservation {
+  id              String            @id @default(cuid())
+  reservationNumber String          @unique
+  date            DateTime
+  time            String           // HH:mm format
+  partySize       Int
+  status          ReservationStatus @default(PENDING)
+  
+  // Customer Info
+  customerId      String?
+  customer        Customer?         @relation(fields: [customerId], references: [id])
+  
+  customerName    String
+  customerPhone   String
+  customerEmail   String?
+  
+  // Branch & Table
+  branchId        String
+  branch          Branch            @relation(fields: [branchId], references: [id])
+  
+  tableId         String?
+  table           Table?            @relation(fields: [tableId], references: [id])
+  
+  notes           String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([reservationNumber])
+  @@index([customerId])
+  @@index([branchId])
+  @@index([date])
+  @@index([status])
+  @@map("reservations")
+}
+
+// ============================================
+// HISTORY & LOGGING
+// ============================================
+
+model OrderStatusHistory {
+  id          String      @id @default(cuid())
+  status      OrderStatus
+  notes       String?
+  changedBy   String?     // User ID or System
+  
+  orderId     String
+  order       Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  
+  @@index([orderId])
+  @@index([createdAt])
+  @@map("order_status_history")
+}
+
+model InventoryLog {
+  id            String          @id @default(cuid())
+  action        InventoryAction
+  quantity      Int
+  notes         String?
+  
+  orderItemId   String?
+  orderItem     OrderItem?      @relation(fields: [orderItemId], references: [id])
+  
+  createdAt DateTime @default(now())
+  
+  @@index([orderItemId])
+  @@index([createdAt])
+  @@map("inventory_logs")
+}
+
+model ActivityLog {
+  id          String   @id @default(cuid())
+  action      String
+  entity      String
+  entityId    String?
+  details     Json?
+  ipAddress   String?
+  userAgent   String?
+  
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  
+  createdAt DateTime @default(now())
+  
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
+// ============================================
+// AR ANALYTICS
+// ============================================
+
+model ArAnalytics {
+  id            String   @id @default(cuid())
+  event         String   // 'view', 'load', 'interaction', 'error'
+  duration      Int?     // in seconds
+  deviceType    String?
+  osVersion     String?
+  browserInfo   Json?
+  
+  menuItemId    String
+  menuItem      MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  
+  sessionId     String?
+  
+  createdAt DateTime @default(now())
+  
+  @@index([menuItemId])
+  @@index([event])
+  @@index([createdAt])
+  @@map("ar_analytics")
+}
+
+// ============================================
+// NOTIFICATIONS
+// ============================================
+
+model Notification {
+  id          String              @id @default(cuid())
+  type        NotificationType
+  channel     NotificationChannel
+  title       String
+  titleAr     String
+  message     String
+  messageAr   String
+  isRead      Boolean             @default(false)
+  sentAt      DateTime?
+  readAt      DateTime?
+  
+  customerId  String?
+  customer    Customer?           @relation(fields: [customerId], references: [id])
+  
+  // Additional data (order ID, reservation ID, etc.)
+  metadata    Json?
+  
+  createdAt DateTime @default(now())
+  
+  @@index([customerId])
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("notifications")
+}
