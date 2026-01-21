@@ -150,6 +150,109 @@ docker exec restaurant-ar-api npx prisma migrate deploy
 
 ---
 
+## 🔄 Rollback Strategy
+
+### Pre-Rollback Checklist
+- [ ] Identify the issue that requires rollback
+- [ ] Check if database migrations were applied in the problematic release
+- [ ] Verify that a database backup exists before the deployment
+- [ ] Tag current production version in Git for potential re-rollback
+
+### Database Migration Rollback
+
+⚠️ **Important:** Prisma does not support automatic migration rollback. Migrations are forward-only.
+
+**Rollback Options:**
+
+1. **Option A: Restore from Backup (Safest)**
+   ```bash
+   # Stop the API to prevent data writes
+   docker-compose -f docker-compose.prod.yml stop api
+   
+   # Restore database from backup
+   docker exec -i restaurant-ar-postgres psql -U postgres restaurant_ar < backup_YYYYMMDD.sql
+   
+   # Restart API
+   docker-compose -f docker-compose.prod.yml start api
+   ```
+
+2. **Option B: Manual Rollback Migration (Advanced)**
+   ```bash
+   # Create a new migration that reverses the changes
+   # Example: If migration added a column, new migration should drop it
+   docker exec restaurant-ar-api npx prisma migrate dev --name rollback_feature_x
+   docker exec restaurant-ar-api npx prisma migrate deploy
+   ```
+
+### Application Rollback
+
+**Docker Deployment:**
+```bash
+# 1. Pull the previous stable tag/commit
+git fetch --tags
+git checkout v1.0.0  # Replace with your previous stable version
+
+# 2. Rebuild containers with previous code
+docker-compose -f docker-compose.prod.yml up -d --build
+
+# 3. Verify health endpoints
+curl https://api.yourdomain.com/api/health
+```
+
+**Image-Based Rollback (Recommended for Docker):**
+```bash
+# 1. Tag images before each deployment
+docker tag restaurant-ar-api:latest restaurant-ar-api:v1.0.1
+docker tag restaurant-ar-web:latest restaurant-ar-web:v1.0.1
+docker tag restaurant-ar-admin:latest restaurant-ar-admin:v1.0.1
+
+# 2. When rollback is needed, use previous image tag
+docker-compose -f docker-compose.prod.yml down
+docker-compose -f docker-compose.prod.yml up -d  # Will use previous tagged images
+```
+
+### Post-Rollback Verification
+```bash
+# 1. Check all services are running
+docker-compose -f docker-compose.prod.yml ps
+
+# 2. Verify health endpoints
+curl https://api.yourdomain.com/api/health
+
+# 3. Test critical user flows
+# - Customer menu viewing
+# - Admin login
+# - Order creation (if applicable)
+
+# 4. Monitor logs for errors
+docker-compose -f docker-compose.prod.yml logs -f --tail=100
+```
+
+### Rollback Best Practices
+1. **Always backup database before deploying**
+   ```bash
+   # Run before each deployment
+   docker exec restaurant-ar-postgres pg_dump -U postgres restaurant_ar > backup_pre_deploy_$(date +%Y%m%d_%H%M%S).sql
+   ```
+
+2. **Test migrations in staging first**
+   - Never run untested migrations directly in production
+   - Verify migration safety (backward compatible)
+
+3. **Version tagging**
+   ```bash
+   # Tag each production release
+   git tag -a v1.0.1 -m "Production release 1.0.1"
+   git push origin v1.0.1
+   ```
+
+4. **Monitor after deployment**
+   - Watch health endpoints for at least 15 minutes post-deployment
+   - Review error logs
+   - Test critical features
+
+---
+
 ## 🌐 URLs After Deployment
 
 | Service | URL |
