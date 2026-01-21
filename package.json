@@ -11,6 +11,8 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
+    "build:prod": "NODE_ENV=production turbo run build",
+    "start": "turbo run start",
     "test": "turbo run test",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
@@ -19,11 +21,14 @@
     "db:generate": "pnpm --filter @restaurant/database generate",
     "db:push": "pnpm --filter @restaurant/database push",
     "db:migrate": "pnpm --filter @restaurant/database migrate",
+    "db:migrate:deploy": "pnpm --filter @restaurant/database migrate:deploy",
     "db:seed": "pnpm --filter @restaurant/database seed",
     "db:studio": "pnpm --filter @restaurant/database studio",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
-    "docker:logs": "docker-compose logs -f"
+    "docker:logs": "docker-compose logs -f",
+    "docker:prod": "docker-compose -f docker-compose.prod.yml up -d --build",
+    "docker:prod:down": "docker-compose -f docker-compose.prod.yml down"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
@@ -38,5 +43,10 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "@nestjs/jwt": "^11.0.2",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3"
+  }
 }

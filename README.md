@@ -198,6 +198,66 @@ pnpm type-check       # Run TypeScript type checking
 
 # Database
 pnpm db:generate      # Generate Prisma client
+
+---
+
+## ✅ Production Readiness Checklist | جاهزية الإنتاج
+
+- Global error handling enabled (NestJS exception filter)
+- Security headers via Helmet
+- Rate limiting configured (per IP)
+- Strict request validation
+- Health check endpoints for API + frontends
+- SEO metadata, Open Graph, sitemap, robots
+
+---
+
+## 🌍 Environment Separation | فصل البيئات
+
+Use the following templates for environment-specific settings:
+
+- `.env.example` (development baseline)
+- `.env.staging.example` (staging)
+- `.env.production.example` (production)
+
+Recommended variables:
+
+- `NODE_ENV`
+- `DATABASE_URL`
+- `JWT_SECRET`
+- `CORS_ORIGIN`
+- `THROTTLE_TTL` / `THROTTLE_LIMIT`
+- `NEXT_PUBLIC_API_URL`
+- `NEXT_PUBLIC_WEB_URL`
+
+---
+
+## 🚀 Deployment | النشر
+
+### Frontend (Vercel)
+
+- Deploy `apps/web` as a Vercel project
+- Deploy `apps/admin` as a separate Vercel project
+- Each app includes a `vercel.json` with pnpm build commands
+
+### Backend (VPS/AWS)
+
+- Use `apps/api/Dockerfile`
+- Use `docker-compose.prod.yml` for production orchestration
+- Expose port `3001` (API)
+- Ensure `JWT_SECRET` and database credentials are set
+
+Health Check:
+- `GET /api/health`
+
+---
+
+## 📈 Observability | المراقبة
+
+- Structured logging enabled via NestJS interceptor
+- Request duration, IP, and user-agent logged in JSON
+- Hooks ready for external monitoring tools (Prometheus/Sentry)
+
 pnpm db:push          # Push schema changes
 pnpm db:migrate       # Create migration
 pnpm db:seed          # Seed database
