@@ -14,7 +14,18 @@ docker-compose up -d
 
 echo ""
 echo "⏳ Waiting for PostgreSQL to be ready..."
-sleep 5
+max_attempts=30
+attempt=0
+until docker-compose exec -T postgres pg_isready -U postgres >/dev/null 2>&1 || [ $attempt -eq $max_attempts ]; do
+  attempt=$((attempt + 1))
+  echo "  Attempt $attempt/$max_attempts..."
+  sleep 2
+done
+
+if [ $attempt -eq $max_attempts ]; then
+  echo "❌ PostgreSQL failed to start. Please check Docker logs."
+  exit 1
+fi
 
 echo ""
 echo "🗄️ Setting up database..."

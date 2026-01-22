@@ -2,6 +2,17 @@
 
 import { useEffect, useRef } from 'react';
 
+interface ModelViewerElement extends HTMLElement {
+  src: string;
+  alt: string;
+  ar: boolean;
+  'ar-modes': string;
+  'camera-controls': boolean;
+  poster?: string;
+  'shadow-intensity': string;
+  'auto-rotate': boolean;
+}
+
 interface ARViewerProps {
   modelUrl: string;
   poster?: string;
@@ -48,7 +59,16 @@ export default function ARViewer({ modelUrl, poster, alt }: ARViewerProps) {
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      'model-viewer': any;
+      'model-viewer': React.DetailedHTMLProps<React.HTMLAttributes<ModelViewerElement>, ModelViewerElement> & {
+        src?: string;
+        alt?: string;
+        ar?: boolean;
+        'ar-modes'?: string;
+        'camera-controls'?: boolean;
+        poster?: string;
+        'shadow-intensity'?: string;
+        'auto-rotate'?: boolean;
+      };
     }
   }
 }

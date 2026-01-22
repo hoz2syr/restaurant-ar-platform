@@ -14,13 +14,17 @@ export default function CartPage() {
 
   const total = getTotal();
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!isAuthenticated) {
       router.push('/auth/login?redirect=/cart');
       return;
     }
-    // TODO: Implement checkout flow
-    alert('Checkout functionality will be implemented');
+    
+    try {
+      router.push('/checkout');
+    } catch (error) {
+      console.error('Checkout error:', error);
+    }
   };
 
   return (
