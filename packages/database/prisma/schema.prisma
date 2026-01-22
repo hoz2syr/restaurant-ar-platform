@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  RESTAURANT_OWNER
+  RESTAURANT_STAFF
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  DELIVERED
+  CANCELLED
+}
+
+enum AssetType {
+  MODEL_3D
+  IMAGE
+  VIDEO
+  THUMBNAIL
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String
+  phone     String?
+  role      Role     @default(CUSTOMER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  restaurants Restaurant[]
+  orders      Order[]
+
+  @@map("users")
+}
+
+model Restaurant {
+  id          String   @id @default(uuid())
+  name        String
+  nameAr      String?
+  description String?
+  descriptionAr String?
+  address     String
+  addressAr   String?
+  phone       String
+  email       String?
+  logoUrl     String?
+  coverUrl    String?
+  latitude    Float?
+  longitude   Float?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  
+  menus       Menu[]
+  orders      Order[]
+
+  @@map("restaurants")
+}
+
+model Menu {
+  id          String   @id @default(uuid())
+  name        String
+  nameAr      String?
+  description String?
+  descriptionAr String?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  
+  items       MenuItem[]
+
+  @@map("menus")
+}
+
+model MenuItem {
+  id          String   @id @default(uuid())
+  name        String
+  nameAr      String?
+  description String?
+  descriptionAr String?
+  price       Float
+  isAvailable Boolean  @default(true)
+  isPopular   Boolean  @default(false)
+  imageUrl    String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  menuId      String
+  menu        Menu     @relation(fields: [menuId], references: [id], onDelete: Cascade)
+  
+  assets      Asset[]
+  orderItems  OrderItem[]
+
+  @@map("menu_items")
+}
+
+model Asset {
+  id          String    @id @default(uuid())
+  type        AssetType
+  url         String
+  fileName    String
+  fileSize    Int
+  mimeType    String
+  metadata    Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  menuItemId  String
+  menuItem    MenuItem  @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@map("assets")
+}
+
+model Order {
+  id          String      @id @default(uuid())
+  orderNumber String      @unique
+  status      OrderStatus @default(PENDING)
+  totalAmount Float
+  notes       String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  customerId  String
+  customer    User        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  
+  restaurantId String
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  
+  items       OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  quantity  Int
+  price     Float
+  subtotal  Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@map("order_items")
+}
