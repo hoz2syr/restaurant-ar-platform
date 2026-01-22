@@ -1,1 +1,9 @@
-{}
+{
+  "app/components/ARViewer.tsx -> @google/model-viewer": {
+    "id": 4327,
+    "files": [
+      "static/chunks/9d78c252.e7ff8bb662cff469.js",
+      "static/chunks/327.4514cd2866d5053b.js"
+    ]
+  }
+}
